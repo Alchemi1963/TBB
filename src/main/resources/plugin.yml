@@ -1,0 +1,10 @@
+name: TheBeastBelow
+main: com.alchemi.tbb.main
+version: ${project.version}
+api-version: 1.13
+author: Alchemi
+description: A run from the beast plugin
+
+commands:
+  tbb:
+    description: TP to world.
