@@ -32,7 +32,8 @@ public class CommandMaps implements CommandBase{
 		Player player = (Player) sender;
 		
 		if (args.length == 0) {
-			sendUsage(sender, usage);
+//			sendUsage(sender, usage);
+			main.instance.mapGui.openGUI(player);
 		} else if (args.length == 1) {
 			
 			if (args[0].equals("create")) {
@@ -59,6 +60,7 @@ public class CommandMaps implements CommandBase{
 				});
 				mh.gotoWorld(player);
 				player.setGameMode(GameMode.CREATIVE);
+				main.instance.mapReg.saveWorlds();
 				
 			} else if (args[0].equals("delete")) {
 				

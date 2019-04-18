@@ -44,6 +44,12 @@ public class MapRegistry {
 		
 	}
 	
+	public void saveWorlds() {
+		for (World w : maps.values()) {
+			w.save();
+		}
+	}
+	
 	public void updateRegistry(FileConfiguration reg) {
 		registry = reg;
 		
@@ -60,7 +66,8 @@ public class MapRegistry {
 	
 	public void deleteMap(String world) { 
 		
-		mapHandlers.get(world).delete();
+		MapHandler mh = mapHandlers.get(world);
+		mh.delete();
 		maps.remove(world);
 		mapHandlers.remove(world);
 		registry.set(world, null);
@@ -88,6 +95,7 @@ public class MapRegistry {
 		wc.type(WorldType.FLAT);
 		wc.generator(new EmptyGenerator());
 		World w = wc.createWorld();
+		
 		w.setSpawnLocation(0, 64, 0);
 		for (int x = -3; x < 4; x++) {
 			for (int z = -3; z < 4; z++) {
@@ -100,8 +108,8 @@ public class MapRegistry {
 		System.out.println("Registering...");
 		maps.put(name, w);
 		mapHandlers.put(name, h);
-		
-		System.out.println("Saving..." + dataFolder.getParentFile().getParentFile().toPath().relativize(new File(mapFolder, name).toPath()).toString());
+		System.out.println(dataFolder.getParentFile().getParentFile());
+		System.out.println("Saving..." + new File(mapFolder, name).toString().replaceAll(".*(?=plugins)", ""));
 		registry.set(name, dataFolder.getParentFile().getParentFile().toPath().relativize(new File(mapFolder, name).toPath()).toString());
 		registry.save(new File(dataFolder, "maps.yml"));
 		

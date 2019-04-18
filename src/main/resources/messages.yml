@@ -1,3 +1,8 @@
 TheBeastBelow:
+
   Tag: '&7[&lThe &4Beast &8Below&r&7]'
-File-Version-Do-Not-Edit: 0
+
+  Maps:
+    Created: 'Created map: $name$'
+    Deleted: 'Deleted map: $name$'
+

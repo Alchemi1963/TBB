@@ -1,7 +1,5 @@
 package com.alchemi.tbb;
 
-import java.util.Arrays;
-
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -10,6 +8,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.alchemi.al.FileManager;
 import com.alchemi.al.Messenger;
 import com.alchemi.tbb.cmd.CommandHandler;
+import com.alchemi.tbb.gui.GuiListener;
+import com.alchemi.tbb.gui.MapGui;
+import com.alchemi.tbb.gui.TPGui;
 import com.alchemi.tbb.maps.MapRegistry;
 
 import net.milkbowl.vault.economy.Economy;
@@ -31,6 +32,11 @@ public class main extends JavaPlugin implements Listener {
 	
 	public static int CONFIG_FILE_VERSION = 0;
 	public static int MESSAGES_FILE_VERSION = 0;
+	
+	public GuiListener guiListener;
+	
+	public MapGui mapGui;
+	public TPGui tpGui;
 	
 	@Override
 	public void onEnable() {
@@ -62,8 +68,19 @@ public class main extends JavaPlugin implements Listener {
 			messenger.print("Config file updated.");
 		}
 		
+		//register stuff
 		mapReg = new MapRegistry(fileManager.getConfig("maps.yml"), this);
 		registerCommands();
+		
+		guiListener = new GuiListener(this);
+		getServer().getPluginManager().registerEvents(guiListener, this);
+		
+//		chatListener = new ChatListener();
+//		getServer().getPluginManager().registerEvents(chatListener, this);
+		
+		createGuis();
+		
+		
 		
 		if (!setupEconomy() ) {
 			messenger.print("[%s] - Disabled due to no Vault dependency found!");
@@ -83,8 +100,17 @@ public class main extends JavaPlugin implements Listener {
 				"&8Though the man above might say hello, expect no love from &4THE BEAST BELOW&8.");
 	}
 	
+	private void createGuis() {
+
+		mapGui = new MapGui(this, "Map Handling", 27);
+		tpGui = new TPGui(this, "Teleport to map", 27);
+		
+	}
+
 	private void registerCommands() {
 
+		mapReg.saveWorlds();
+		
 		getCommand("tbb").setExecutor(new CommandHandler());
 		
 	}

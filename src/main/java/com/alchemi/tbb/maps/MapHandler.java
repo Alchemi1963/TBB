@@ -103,11 +103,13 @@ public class MapHandler {
 		try {
 			mapConfiguration.save(mapConfigurationFile);
 		} catch (IOException e) {}
+		world.save();
 	}
 	
 	public boolean gotoWorld(Player player) {
 		
 		fillChests();
+		System.out.println(world.getSpawnLocation());
 		return player.teleport(world.getSpawnLocation());	
 	}
 }

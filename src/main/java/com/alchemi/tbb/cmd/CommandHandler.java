@@ -24,7 +24,7 @@ public class CommandHandler implements CommandExecutor {
 				newArgs[i] = args[i+1];
 			}
 			
-			if (mapsAliases.contains(args[0])) try { maps.onCommand(sender, command, newArgs); } catch (Exception ig) {}
+			if (mapsAliases.contains(args[0])) try { maps.onCommand(sender, command, newArgs); } catch (Exception ig) {ig.printStackTrace();}
 			
 		}
 		
