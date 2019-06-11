@@ -1,9 +1,6 @@
 package com.alchemi.tbb.gui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -15,32 +12,39 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.alchemi.al.Messenger;
-import com.alchemi.al.SexyRunnable;
+import com.alchemi.tbb.Config.Messages;
 import com.alchemi.tbb.main;
-import com.alchemi.tbb.items.ItemFactory;
 
-public class MapGui extends GuiBase{
+import me.alchemi.al.configurations.Messenger;
+import me.alchemi.al.objects.GUI.GUIBase;
+import me.alchemi.al.objects.handling.ItemFactory;
+import me.alchemi.al.objects.handling.SexyRunnable;
 
-	public MapGui(main plugin, String name, int size) {
+public class MapGui extends GUIBase{
+
+	public MapGui(Player player) {
 		
-		super(plugin, name, size);
-		main.instance.guiListener.registerGui(this);
+		super(main.getInstance(),"Map Handling", 27, player, player);
+		
 		setContents();
 		setCommands();
+		openGUI();
 	}
 
 	@Override
-	void setContents() {
+	public void setContents() {
 		
-		ItemStack createMapStack = ItemFactory.getItemStack(Material.MAP, "&d&l&oCREATE MAP");
-		ItemStack toMapStack = ItemFactory.getItemStack(Material.COMPASS, "&d&l&oTELEPORT TO MAP");
-		ItemStack deleteMapStack = ItemFactory.getItemStack(Material.BARRIER, "&4&o&lDELETE MAP");
-		ItemStack listMapStack = ItemFactory.getItemStack(Material.BOOK, "&d&o&lLIST MAPS", new ArrayList<String>() {{
-			add("List all maps");
-		}}, Enchantment.CHANNELING, false, 1);
-		
-		ItemStack currentMap = ItemFactory.getItemStack(Material.GRASS_BLOCK, "current map");
+		ItemStack createMapStack = new ItemFactory(Material.MAP).setName("&d&l&oCREATE MAP");
+		ItemStack toMapStack = new ItemFactory(Material.COMPASS).setName("&d&l&oTELEPORT TO MAP");
+		ItemStack deleteMapStack = new ItemFactory(Material.BARRIER).setName("&4&o&lDELETE MAP");
+		ItemStack listMapStack = new ItemFactory(Material.BOOK)
+				.setName("&d&o&lLIST MAPS")
+				.setLore(new ArrayList<String>() {
+					{
+						add("List all maps");
+					}})
+				.addEnch(Enchantment.CHANNELING, false);
+		ItemStack currentMap = new ItemFactory(Material.GRASS_BLOCK).setName("current map");
 		
 		contents.put(2, createMapStack);
 		contents.put(3, toMapStack);
@@ -51,13 +55,13 @@ public class MapGui extends GuiBase{
 	}
 
 	@Override
-	void setCommands() {
-		commands.put(contents.get(2), createMap);
-		commands.put(contents.get(3), toMap);
-		commands.put(contents.get(4), deleteMap);
-		commands.put(contents.get(8), listMaps);
+	public void setCommands() {
+		commands.put(2, createMap);
+		commands.put(3, toMap);
+		commands.put(4, deleteMap);
+		commands.put(8, listMaps);
 		
-		commands.put(contents.get(9), new SexyRunnable() {
+		commands.put(9, new SexyRunnable() {
 			
 			@Override
 			public void run(Object... arg0) {
@@ -68,11 +72,11 @@ public class MapGui extends GuiBase{
 			}
 		});
 		
-		arguments.put(contents.get(2), new Object[] {"<player>"});
-		arguments.put(contents.get(3), new Object[] {"<player>"});
-		arguments.put(contents.get(4), new Object[] {"<player>"});
-		arguments.put(contents.get(8), new Object[] {"<player>"});
-		arguments.put(contents.get(9), new Object[] {"<player>"});
+		arguments.put(2, new Object[] {"<player>"});
+		arguments.put(3, new Object[] {"<player>"});
+		arguments.put(4, new Object[] {"<player>"});
+		arguments.put(8, new Object[] {"<player>"});
+		arguments.put(9, new Object[] {"<player>"});
 	}
 	
 	SexyRunnable createMap = new SexyRunnable() {
@@ -80,11 +84,10 @@ public class MapGui extends GuiBase{
 		@Override
 		public void run(Object... arg0) {
 			//<player>
-			Messenger.sendMsg("&dPlease type the &amap name&d:", (Player) arg0[0]); 
+			Player listen = (Player)arg0[0];
+			listen.sendMessage(Messenger.formatString("&dPlease type the &amap name&d:")); 
 			
 			Listener listener = new Listener() {
-				
-				Player listen = (Player) arg0[0];
 				
 				@EventHandler
 				public void onChat(AsyncPlayerChatEvent e){
@@ -115,8 +118,7 @@ public class MapGui extends GuiBase{
 		@Override
 		public void run(Object... arg0) {
 			
-			plugin.tpGui.resetContents();
-			plugin.tpGui.openGUI((Player)arg0[0]);
+			new TPGui((Player)arg0[0]);
 			
 		}
 	};
@@ -132,12 +134,9 @@ public class MapGui extends GuiBase{
 			
 			String mapName = w.getName().replace("plugins\\TheBeastBelow\\maps\\", "");
 			
-			plugin.mapReg.deleteMap(mapName);
-			Messenger.sendMsg("Maps.Deleted", player, new HashMap<String, String>(){
-				{
-					put("$name$", mapName);
-				}
-			});
+			main.getInstance().getMapReg().deleteMap(mapName);
+			sender.sendMessage(Messenger.formatString(Messages.MAPS_DELETED.value()
+					.replace("$name$", mapName)));
 			
 		}
 	};
@@ -167,13 +166,19 @@ public class MapGui extends GuiBase{
 			Player pl = (Player) arg0[0];
 			
 			String keys = "";
-			for (String key : plugin.mapReg.getMaps().keySet()) {
+			for (String key : main.getInstance().getMapReg().getMaps().keySet()) {
 				if (keys == "") keys = key;
 				else keys += ", " + key;
 			}
-			Messenger.sendMsg(keys, pl);
+			pl.sendMessage(keys);
 			
 		}
 	};
+
+	@Override
+	public void onClose() {
+		// TODO Auto-generated method stub
+		
+	}
 }
 

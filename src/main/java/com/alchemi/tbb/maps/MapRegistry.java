@@ -12,22 +12,24 @@ import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
 
 import com.alchemi.tbb.main;
 
 public class MapRegistry {
 
-	private static HashMap<String, World> maps = new HashMap<String, World>();
-	private static HashMap<String, MapHandler> mapHandlers = new HashMap<String, MapHandler>();
+	private HashMap<String, World> maps = new HashMap<String, World>();
+	private HashMap<String, MapHandler> mapHandlers = new HashMap<String, MapHandler>();
 	
 	private FileConfiguration registry;
 	
-	private static File mapFolder;
-	private static File dataFolder;
+	private File mapFolder;
+	private File dataFolder;
 	
-	public MapRegistry(FileConfiguration reg, Plugin plug) {
+	private main plug;
+	
+	public MapRegistry(FileConfiguration reg, main plug) {
 		
+		this.plug = plug;
 		registry = reg;
 		dataFolder = plug.getDataFolder();
 		mapFolder = new File(plug.getDataFolder(), "maps");
@@ -37,7 +39,7 @@ public class MapRegistry {
 				
 				maps.put(ent, Bukkit.getServer().createWorld(WorldCreator.name(reg.getString(ent))));
 				mapHandlers.put(ent, new MapHandler(maps.get(ent)));
-				main.instance.messenger.print("&4World &9" + ent + " &4loaded!");
+				plug.getMessenger().print("&4World &9" + ent + " &4loaded!");
 				
 			}
 		}
@@ -58,7 +60,7 @@ public class MapRegistry {
 				
 				maps.put(ent, Bukkit.getServer().createWorld(WorldCreator.name(reg.getString(ent))));
 				mapHandlers.put(ent, new MapHandler(maps.get(ent)));
-				main.instance.messenger.print("&4World &9" + ent + " &4loaded!");
+				plug.getMessenger().print("&4World &9" + ent + " &4loaded!");
 				
 			}
 		}
@@ -116,13 +118,13 @@ public class MapRegistry {
 		return h;
 	}
 	
-	public static MapHandler getMapHandler(String name) {
+	public MapHandler getMapHandler(String name) {
 		if (!mapHandlers.containsKey(name)) return null;
 		
 		return mapHandlers.get(name);
 	}
 	
-	public static MapHandler getMapHandler(World world) {
+	public MapHandler getMapHandler(World world) {
 		if (!maps.containsValue(world)) return null;
 		
 		for (Entry<String, World> entry : maps.entrySet()) {

@@ -1,86 +1,53 @@
 package com.alchemi.tbb;
 
-import org.bukkit.configuration.file.FileConfiguration;
+import java.io.IOException;
+
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
 
-import com.alchemi.al.FileManager;
-import com.alchemi.al.Messenger;
 import com.alchemi.tbb.cmd.CommandHandler;
-import com.alchemi.tbb.gui.GuiListener;
-import com.alchemi.tbb.gui.MapGui;
-import com.alchemi.tbb.gui.TPGui;
 import com.alchemi.tbb.maps.MapRegistry;
 
+import me.alchemi.al.configurations.Messenger;
+import me.alchemi.al.objects.base.PluginBase;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
-public class main extends JavaPlugin implements Listener {
+public class main extends PluginBase implements Listener {
 
-	public static main instance;
+	private static main instance;
 	
-	public Messenger messenger;
-	public FileManager fileManager;
-	public Economy econ;
-	public Permission perms;
-	public MapRegistry mapReg;
+	private Economy econ;
+	private Permission perms;
+	private MapRegistry mapReg;
 	
-	public static boolean VaultPerms = false;
+	private boolean VaultPerms = false;
 	
-	public FileConfiguration config;
-	
-	public static int CONFIG_FILE_VERSION = 0;
-	public static int MESSAGES_FILE_VERSION = 0;
-	
-	public GuiListener guiListener;
-	
-	public MapGui mapGui;
-	public TPGui tpGui;
+	private Config config;
 	
 	@Override
 	public void onEnable() {
 
 		instance = this;
 		
-		fileManager = new FileManager(this, new String[] {"config.yml", "messages.yml", "maps.yml"}, null, null, null);
-		messenger = new Messenger(this, fileManager);
+		setMessenger(new Messenger(this));
 		
-		fileManager.saveDefaultYML("config.yml");
-		fileManager.saveDefaultYML("messages.yml");
-		fileManager.saveDefaultYML("maps.yml");
-		
-		if (!fileManager.getConfig("messages.yml").isSet("File-Version-Do-Not-Edit") || fileManager.getConfig("messages.yml").getInt("File-Version-Do-Not-Edit") != MESSAGES_FILE_VERSION) {
-			messenger.print("Messages file out of date! Updating...");
-			fileManager.reloadConfig("messages.yml");
-			fileManager.updateConfig("messages.yml");
-			fileManager.getConfig("messages.yml").set("File-Version-Do-Not-Edit", MESSAGES_FILE_VERSION);
-			fileManager.saveConfig("messages.yml");
-			messenger.print("Messages file updated.");
-		}
-		
-		if (!getConfig().isSet("File-Version-Do-Not-Edit") || getConfig().getInt("File-Version-Do-Not-Edit") != CONFIG_FILE_VERSION) {
-			messenger.print("Config file out of date! Updating...");
-			fileManager.reloadConfig("config.yml");
-			fileManager.updateConfig("config.yml");
-			fileManager.getConfig("config.yml").set("File-Version-Do-Not-Edit", CONFIG_FILE_VERSION);
-			fileManager.saveConfig("config.yml");
-			messenger.print("Config file updated.");
+		try {
+			config = new Config();
+		} catch (IOException | InvalidConfigurationException e) {
+			System.err.println("Unable to load configs! Disabling plugin...");
+			Bukkit.getPluginManager().disablePlugin(this);
+			e.printStackTrace();
 		}
 		
 		//register stuff
-		mapReg = new MapRegistry(fileManager.getConfig("maps.yml"), this);
+		mapReg = new MapRegistry(Config.ConfigEnum.MAPS.getConfig(), this);
 		registerCommands();
 		
-		guiListener = new GuiListener(this);
-		getServer().getPluginManager().registerEvents(guiListener, this);
-		
 //		chatListener = new ChatListener();
-//		getServer().getPluginManager().registerEvents(chatListener, this);
-		
-		createGuis();
-		
-		
+//		getServer().getPluginManager().registerEvents(chatListener, this);		
 		
 		if (!setupEconomy() ) {
 			messenger.print("[%s] - Disabled due to no Vault dependency found!");
@@ -99,13 +66,6 @@ public class main extends JavaPlugin implements Listener {
 				+ "&8One has a smile, and one has teeth.\r\n" + 
 				"&8Though the man above might say hello, expect no love from &4THE BEAST BELOW&8.");
 	}
-	
-	private void createGuis() {
-
-		mapGui = new MapGui(this, "Map Handling", 27);
-		tpGui = new TPGui(this, "Teleport to map", 27);
-		
-	}
 
 	private void registerCommands() {
 
@@ -117,6 +77,7 @@ public class main extends JavaPlugin implements Listener {
 
 	@Override
 	public void onDisable() {
+		config.save();
 		messenger.print("&8All that &1pain &8and &cmisery&8... and &9loneliness&8.\n"
 				+ "&8And it just made it &6kind&8.");
 	}
@@ -142,8 +103,42 @@ public class main extends JavaPlugin implements Listener {
 
 	public void reloadConfigValues() {
 		
-		this.config = fileManager.getConfig("config.yml");
+		
 		
 	}
-	
+
+	/**
+	 * @return the instance
+	 */
+	public static final main getInstance() {
+		return instance;
+	}
+
+	/**
+	 * @return the econ
+	 */
+	public final Economy getEcon() {
+		return econ;
+	}
+
+	/**
+	 * @return the perms
+	 */
+	public final Permission getPerms() {
+		return perms;
+	}
+
+	/**
+	 * @return the mapReg
+	 */
+	public final MapRegistry getMapReg() {
+		return mapReg;
+	}
+
+	/**
+	 * @return the vaultPerms
+	 */
+	public final boolean isVaultPerms() {
+		return VaultPerms;
+	}
 }
