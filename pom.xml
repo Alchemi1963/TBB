@@ -36,6 +36,10 @@
       <id>vault-repo</id>
       <url>http://nexus.hc.to/content/repositories/pub_releases/</url>
     </repository>
+    <repository>
+      <id>github</id>
+      <url>https://raw.githubusercontent.com/Alchemi1963/AlchemicRepo/master/</url>
+    </repository>
   </repositories>
   
   <dependencies>
@@ -55,7 +59,7 @@
       <groupId>me.alchemi</groupId>
       <artifactId>AlchemicLibrary</artifactId>
       <version>LATEST</version>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>
