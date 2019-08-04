@@ -122,6 +122,24 @@ public class Config extends ConfigBase {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		@Override
+		public double asDouble() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public List<Float> asFloatList() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public List<Integer> asIntList() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 		
 	}
 	
