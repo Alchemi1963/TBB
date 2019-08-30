@@ -2,6 +2,9 @@ package com.alchemi.tbb;
 
 import java.io.IOException;
 
+import com.alchemi.tbb.data.TBBPlayerDatabase;
+import com.alchemi.tbb.listener.PlayerJoin;
+import com.alchemi.tbb.listener.PlayerQuit;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.event.Listener;
@@ -22,15 +25,21 @@ public class main extends PluginBase implements Listener {
 	private Economy econ;
 	private Permission perms;
 	private MapRegistry mapReg;
+	private TBBPlayerDatabase playerDatabase;
 	
 	private boolean VaultPerms = false;
 	
 	private Config config;
+
+	public TBBPlayerDatabase getPlayerDatabase(){
+		return playerDatabase;
+	}
 	
 	@Override
 	public void onEnable() {
 
 		instance = this;
+		playerDatabase = new TBBPlayerDatabase();
 		
 		setMessenger(new Messenger(this));
 		
@@ -45,6 +54,9 @@ public class main extends PluginBase implements Listener {
 		//register stuff
 		mapReg = new MapRegistry(Config.ConfigEnum.MAPS.getConfig(), this);
 		registerCommands();
+
+		getServer().getPluginManager().registerEvents(new PlayerJoin(), this);
+		getServer().getPluginManager().registerEvents(new PlayerQuit(), this);
 		
 //		chatListener = new ChatListener();
 //		getServer().getPluginManager().registerEvents(chatListener, this);		
